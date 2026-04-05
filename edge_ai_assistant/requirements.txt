@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+pydantic
+requests
+numpy
+pymupdf
+sentence-transformers
+llama-cpp-python
+tenseal
+torch
+transformers
+scikit-learn
+scipy
