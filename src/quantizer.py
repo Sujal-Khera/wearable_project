@@ -1,5 +1,5 @@
 import numpy as np
-from config import QuantizationConfig
+from new.wearable_project.config import QuantizationConfig
 
 
 class Int8Quantizer:

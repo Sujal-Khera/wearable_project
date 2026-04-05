@@ -1,7 +1,7 @@
 import numpy as np
 from typing import List
 from sentence_transformers import SentenceTransformer
-from config import EmbeddingConfig
+from new.wearable_project.config import EmbeddingConfig
 
 
 class Embedder:

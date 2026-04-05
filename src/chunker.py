@@ -1,6 +1,6 @@
 import os
 from typing import List
-from config import ChunkConfig
+from new.wearable_project.config import ChunkConfig
 
 
 def extract_text_from_pdf(pdf_path: str) -> str:

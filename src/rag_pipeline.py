@@ -2,12 +2,12 @@ import time
 import numpy as np
 from typing import List, Dict, Optional
 
-from config import RAGConfig, DEFAULT_CONFIG
-from src.chunker import load_document
-from src.embedder import Embedder
-from src.quantizer import Int8Quantizer
-from src.encryption import BFVEngine
-from src.search import BFVSearch, SearchResult
+from new.wearable_project.config import RAGConfig, DEFAULT_CONFIG
+from new.wearable_project.src.chunker import load_document
+from new.wearable_project.src.embedder import Embedder
+from new.wearable_project.src.quantizer import Int8Quantizer
+from new.wearable_project.src.encryption import BFVEngine
+from new.wearable_project.src.search import BFVSearch, SearchResult
 
 
 class PrivateRAGPipeline:

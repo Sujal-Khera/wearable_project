@@ -2,7 +2,7 @@ import time
 import numpy as np
 from typing import List
 import tenseal as ts
-from config import BFVConfig
+from new.wearable_project.config import BFVConfig
 
 
 class BFVEngine:

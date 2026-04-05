@@ -2,7 +2,7 @@ import time
 import numpy as np
 from typing import List
 from dataclasses import dataclass, field
-from src.encryption import BFVEngine
+from new.wearable_project.src.encryption import BFVEngine
 
 
 @dataclass
