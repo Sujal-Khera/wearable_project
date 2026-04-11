@@ -3,9 +3,9 @@ from dataclasses import dataclass, field
 
 @dataclass
 class ChunkConfig:
-    chunk_size: int = 120
-    chunk_overlap: int = 30
-    min_chunk_length: int = 40
+    chunk_size: int = 90
+    chunk_overlap: int = 20
+    min_chunk_length: int = 30
 
 
 @dataclass
@@ -15,26 +15,12 @@ class EmbeddingConfig:
 
 
 @dataclass
-class QuantizationConfig:
-    scale: int = 120
-
-
-@dataclass
-class BFVConfig:
-    poly_modulus_degree: int = 8192
-    plain_mod_bits: int = 20
-
-
-@dataclass
 class RAGConfig:
     chunk: ChunkConfig = field(default_factory=ChunkConfig)
     embedding: EmbeddingConfig = field(default_factory=EmbeddingConfig)
-    quantization: QuantizationConfig = field(default_factory=QuantizationConfig)
-    bfv: BFVConfig = field(default_factory=BFVConfig)
 
-    search_mode: str = "ct_ct"
     top_k: int = 3
-    relevance_threshold: float = 0.02
+    relevance_threshold: float = 0.32
     no_match_message: str = "No relevant document context found."
 
 

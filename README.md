@@ -1,43 +1,177 @@
-# Edge AI Assistant (Private RAG + Streaming)
+# KLVR — Edge AI Voice Assistant
 
-This project runs on a Raspberry Pi and does the following:
+**Private RAG + Self-Learning + Streaming + Voice + GUI**
 
-- Laptop sends query to Raspberry Pi
-- Pi runs Private RAG first
-- If RAG finds relevant chunks above threshold, those chunks are fed to local LLM
-- If not, LLM answers normally
-- Response is streamed back to laptop
+---
 
-## Project structure
+# Overview
 
-```bash
+KLVR is an **Edge AI Voice Assistant** running on **Raspberry Pi** that provides:
+
+* Private Retrieval-Augmented Generation (RAG)
+* Local LLM inference
+* Streaming responses
+* Voice interaction
+* Self-learning memory
+* Multi-document knowledge base
+* Beautiful GUI client
+
+All processing happens **locally** — no cloud dependency.
+
+---
+
+# System Architecture
+
+## Raspberry Pi (Server)
+
+* Local LLM (Qwen 1.5B)
+* Private RAG Pipeline
+* FAISS Vector Search
+* Multi-Document Knowledge
+* Self-Learning Memory
+* FastAPI Server
+
+## Laptop (Client)
+
+* Voice Input
+* Wake Word Detection
+* Manual Recording
+* GUI Interface
+* Streaming Response Display
+* Text-to-Speech
+
+---
+
+# How It Works (Pipeline)
+
+```
+User Voice
+    ↓
+Wake Word / Manual Start
+    ↓
+Speech Recognition
+    ↓
+Send Query to Raspberry Pi
+    ↓
+RAG Search (PDF + Memory)
+    ↓
+Threshold Check
+    ↓
+LLM Generation
+    ↓
+Streaming Response
+    ↓
+Save to Memory
+    ↓
+Better Future Responses
+```
+
+---
+
+# Key Features
+
+## Private RAG
+
+* Documents stored locally
+* No cloud dependency
+* Fast retrieval using FAISS
+
+---
+
+## Multi-Document Knowledge
+
+System loads:
+
+```
+KLVR Technical PDF
+knowledge.txt
+Future Documents
+```
+
+All documents merged into one vector database.
+
+---
+
+## Self-Learning Memory
+
+After each response:
+
+* Answer stored in `knowledge.txt`
+* Future queries use learned knowledge
+* Assistant improves automatically
+
+---
+
+## Streaming Responses
+
+* Token-by-token streaming
+* Faster response perception
+* Natural conversational experience
+
+---
+
+## Voice Assistant
+
+Supports:
+
+* Wake word detection
+* Manual recording
+* GUI interface
+* Text-to-Speech
+
+---
+
+# Project Structure
+
+```
 edge_ai_assistant/
 ├── server.py
 ├── config.py
 ├── requirements.txt
 ├── data/
-│   └── your_document.pdf
+│   ├── KLVR.pdf
+│   └── knowledge.txt
 └── src/
-    ├── __init__.py
     ├── chunker.py
     ├── embedder.py
-    ├── encryption.py
-    ├── quantizer.py
     ├── rag_pipeline.py
-    ├── search.py
-    └── utils.py
+    └── search.py
 ```
 
-Laptop side:
+Client side:
 
-```bash
-client.py
+```
 voice_client.py
+klvr_gui.py
 ```
 
-## Setup on Raspberry Pi
+---
 
-### 1) Create folders
+# RAG Pipeline
+
+```
+Document
+   ↓
+Chunking
+   ↓
+Embedding
+   ↓
+FAISS Index
+   ↓
+Query Embedding
+   ↓
+Similarity Search
+   ↓
+Retrieve Context
+   ↓
+LLM Response
+```
+
+---
+
+# Setup — Raspberry Pi
+
+## Create Project
 
 ```bash
 cd /home/rpi
@@ -46,7 +180,9 @@ mkdir -p edge_ai_assistant/data
 cd edge_ai_assistant
 ```
 
-### 2) Create and activate virtual environment
+---
+
+## Create Virtual Environment
 
 ```bash
 python3 -m venv venv
@@ -54,355 +190,217 @@ source venv/bin/activate
 pip install --upgrade pip
 ```
 
-### 3) Install dependencies
+---
+
+## Install Dependencies
 
 ```bash
-pip install -r requirements.txt
+pip install fastapi uvicorn llama-cpp-python \
+sentence-transformers faiss-cpu pymupdf numpy
 ```
 
-### 4) Put your document in data folder
+---
 
-PDF example:
+## Add Documents
+
+Place inside:
+
+```
+/home/rpi/edge_ai_assistant/data/
+```
+
+Example:
+
+```
+KLVR Wearable Technical Spec.pdf
+knowledge.txt
+```
+
+---
+
+## Start Server
 
 ```bash
-cp /path/to/your/document.pdf /home/rpi/edge_ai_assistant/data/your_document.pdf
-```
-
-Text example:
-
-```bash
-cp /path/to/your/document.txt /home/rpi/edge_ai_assistant/data/your_document.txt
-```
-
-### 5) Edit model and document paths in server.py
-
-Set:
-
-```python
-MODEL_PATH = "/home/rpi/sujal/models/qwen/Qwen2.5-1.5B-Instruct-Q4_K_M.gguf"
-DOCUMENT_PATH = "/home/rpi/edge_ai_assistant/data/your_document.pdf"
-```
-
-If using TXT, update DOCUMENT_PATH accordingly.
-
-### 6) Test imports
-
-```bash
-source venv/bin/activate
-python -c "from src.rag_pipeline import PrivateRAGPipeline; print('RAG import ok')"
-python -c "from llama_cpp import Llama; print('llama import ok')"
-python -c "import tenseal; print('tenseal import ok')"
-```
-
-### 7) Start server
-
-```bash
-cd /home/rpi/edge_ai_assistant
-source venv/bin/activate
 uvicorn server:app --host 0.0.0.0 --port 8000
 ```
 
-Expected startup sequence includes:
+---
 
-- model loading
-- document ingestion
-- embedding generation
-- quantization
-- BFV setup
-- encryption/indexing
+# Server Startup Flow
 
-## Test on Raspberry Pi
+```
+Load LLM
+↓
+Ingest Documents
+↓
+Generate Embeddings
+↓
+Create FAISS Index
+↓
+Server Ready
+```
 
-Health:
+---
+
+# Test Server
+
+Health Check
 
 ```bash
 curl http://127.0.0.1:8000/health
 ```
 
-RAG only:
+---
 
-```bash
-curl -X POST http://127.0.0.1:8000/rag_search \
-  -H "Content-Type: application/json" \
-  -d '{"text":"What is this document about?"}'
-```
-
-Generation:
+Generate
 
 ```bash
 curl -X POST http://127.0.0.1:8000/generate \
-  -H "Content-Type: application/json" \
-  -d '{"text":"What is this document about?"}'
+-d '{"text":"Explain KLVR"}'
 ```
 
-## Find Raspberry Pi IP
+---
 
-On Raspberry Pi:
+# Voice Client
+
+Install:
 
 ```bash
-hostname -I
-```
-
-Example:
-
-```bash
-192.168.1.15
-```
-
-Use that IP in laptop client.py:
-
-```python
-PI_IP = "192.168.1.15"
-```
-
-## Setup on Laptop
-
-Install dependency if needed:
-
-```bash
-pip install requests
-```
-
-Run client:
-
-```bash
-python client.py
-```
-
-## Voice Assistant Client on Laptop
-
-The Raspberry Pi server remains unchanged. Microphone and wake/keyboard triggers run on the laptop via [voice_client.py](../voice_client.py).
-
-### What it does
-
-- Keeps microphone listening on the laptop
-- Activates when you press `m` or say `Hey KLVR`
-- Captures speech and converts speech to text
-- Sends query text to Raspberry Pi `/generate`
-- Prints streamed response
-- Speaks response aloud via TTS
-
-### Configure Pi IP
-
-Edit [voice_client.py](../voice_client.py) and set:
-
-```python
-PI_IP = "192.168.1.15"
-```
-
-Use your actual Raspberry Pi LAN IP.
-
-### Install laptop dependencies for voice mode
-
-```bash
-pip install requests SpeechRecognition pyttsx3 keyboard pyaudio
-```
-
-If `pyaudio` fails:
-
-On Ubuntu/Debian:
-
-```bash
-sudo apt update
-sudo apt install portaudio19-dev python3-pyaudio
-pip install pyaudio
-```
-
-On Windows:
-
-```bash
-pip install pipwin
-pipwin install pyaudio
-```
-
-On macOS:
-
-```bash
-brew install portaudio
-pip install pyaudio
-```
-
-### Run voice client
-
-```bash
-python voice_client.py
-```
-
-### Voice controls
-
-- Press `m` to trigger a voice query
-- Say `Hey KLVR` to trigger wake word mode
-- Press `q` to quit the client
-
-### Microphone test (if input device is not detected)
-
-Create `test_mic.py` with:
-
-```python
-import speech_recognition as sr
-print(sr.Microphone.list_microphone_names())
+pip install requests SpeechRecognition pyttsx3 pyaudio
 ```
 
 Run:
 
 ```bash
-python test_mic.py
-```
-
-### Practical limitations of current wake-word implementation
-
-- Wake-word detection currently uses continuous normal speech recognition
-- It can false-trigger or miss triggers in noisy rooms
-- It requires internet for Google recognition
-- For production, use dedicated wake-word engines like Porcupine/OpenWakeWord and offline STT such as Vosk
-
-## Client commands
-
-- /health -> check server
-- /rag your query -> test only RAG retrieval
-- exit -> quit
-
-## Step-by-step testing
-
-### Test 1: health
-
-Input:
-
-```text
-/health
-```
-
-Expected:
-
-```text
-Server health: {'status': 'running', 'rag_ready': True}
-```
-
-### Test 2: RAG only
-
-```text
-/rag what is the main topic of the document
-```
-
-Expected: JSON output and has_match true if relevant.
-
-### Test 3: full answer
-
-```text
-what is the main topic of the document
-```
-
-Expected: RAG used true if match found and streamed LLM answer.
-
-### Test 4: unrelated query
-
-```text
-what is the capital of japan
-```
-
-Expected: RAG may be false and normal LLM answer.
-
-## Common issues
-
-### ModuleNotFoundError: src
-
-Run from project root:
-
-```bash
-cd /home/rpi/edge_ai_assistant
-uvicorn server:app --host 0.0.0.0 --port 8000
-```
-
-### PDF not found
-
-Fix DOCUMENT_PATH in server.py.
-
-### llama_cpp install/build issues
-
-Use a compatible wheel or Pi-specific build setup.
-
-### tenseal install issues
-
-TenSEAL can be tricky on ARM/Pi. Check Pi model, OS, and Python version for a Pi-specific install path.
-
-### Threshold too strict
-
-In config.py lower:
-
-```python
-relevance_threshold = 0.01
-```
-
-### Threshold too loose
-
-In config.py increase:
-
-```python
-relevance_threshold = 0.05
-```
-
-## Optional quick TXT test
-
-Create file:
-
-```bash
-nano /home/rpi/edge_ai_assistant/data/your_document.txt
-```
-
-Then in server.py:
-
-```python
-DOCUMENT_PATH = "/home/rpi/edge_ai_assistant/data/your_document.txt"
-```
-
-## Exact order from scratch
-
-### Raspberry Pi
-
-```bash
-cd /home/rpi
-mkdir -p edge_ai_assistant/src
-mkdir -p edge_ai_assistant/data
-cd edge_ai_assistant
-python3 -m venv venv
-source venv/bin/activate
-pip install --upgrade pip
-pip install -r requirements.txt
-```
-
-Copy document into data, edit server.py paths, then run:
-
-```bash
-source venv/bin/activate
-uvicorn server:app --host 0.0.0.0 --port 8000
-```
-
-### Laptop
-
-```bash
-pip install requests
-python client.py
-```
-
-Voice mode:
-
-```bash
-pip install requests SpeechRecognition pyttsx3 keyboard pyaudio
 python voice_client.py
 ```
 
-## Current behavior
+---
 
-- RAG search is encrypted using BFV over quantized embeddings
-- If relevant chunks found, they are inserted into prompt
-- Local LLM generates answer
-- Output streams to client
+# GUI Client
 
-## Not yet included
+Modern interface:
 
-- saving encrypted index to disk
-- loading encrypted index without rebuilding
-- direct document answer first, then LLM answer
-- chunk-by-chunk encrypted output streaming
-- multi-document ingestion
-- UI frontend
+```bash
+python klvr_gui.py
+```
+
+Features:
+
+* Chat Interface
+* Start / Stop Speaking
+* Streaming Response
+* Voice Playback
+
+---
+
+# Self-Learning Example
+
+User asks:
+
+```
+Explain KLVR architecture
+```
+
+System:
+
+```
+RAG search
+LLM generation
+Store to knowledge.txt
+```
+
+Next query becomes **more accurate**.
+
+---
+
+# Applications
+
+## Personal Assistant
+
+Private knowledge assistant
+
+---
+
+## Enterprise AI
+
+Company documentation search
+
+---
+
+## Smart Home Assistant
+
+Local voice control
+
+---
+
+## Healthcare
+
+Privacy-sensitive environments
+
+---
+
+## Industrial Edge AI
+
+Factory assistant
+
+---
+
+# Novelty
+
+KLVR combines:
+
+* Edge AI
+* Private RAG
+* Self-Learning
+* Streaming LLM
+* Voice Interface
+* GUI Interface
+
+All running **locally on Raspberry Pi**.
+
+---
+
+# Current Capabilities
+
+* Multi-Document RAG
+* Self-Learning Memory
+* Voice Assistant
+* Streaming LLM
+* GUI Interface
+* Edge Deployment
+
+---
+
+# Future Improvements
+
+* Persistent Vector DB
+* Offline Speech Recognition
+* Web UI
+* Multi-User Support
+* Conversation Memory
+
+---
+
+# Final Architecture
+
+```
+Laptop Voice Client
+        ↓
+Raspberry Pi Server
+        ↓
+Private RAG Pipeline
+        ↓
+Local LLM
+        ↓
+Streaming Response
+        ↓
+Voice Output
+```
+
+---
+
+# KLVR
+
+**Intelligent Edge AI Voice Assistant**
+**Private • Local • Self-Learning**
